@@ -1,0 +1,51 @@
+---
+hostname: 'VyOS-R1'
+wan_subnet: '192.168.0.0/29'
+lan_subnet: '172.16.0.0/24'
+lan_ip: '172.16.0.1/24'
+wan_interface: 'eth1'
+lan_interface: 'eth2'
+wan_interface_descr: 'WAN'
+lan_interface_descr: 'LAN'
+
+# Redundancy Protocols
+vrrp: 0
+vip: 172.16.0.3/24
+
+# Routing protocols
+static_route: 1
+next_hop: 172.16.0.7
+static_route_networks:
+  - 10.204.224.0/22
+  - 10.204.248.0/25
+  - 10.205.1.0/29
+  - 10.204.244.32/27
+
+ospf: 0
+ospf_area: 0
+
+# eBGP
+bgp: 0
+asn: 65500
+remote_asn: 12345
+ce_asn: 65400
+# Services
+snat: 0
+
+dnat: 0
+
+dhcp_relay: 0
+dhcp_relay_ip:
+  - 10.70.62.53
+  - 10.70.62.54
+
+dhcp_server: 0
+dhcp_start: 172.16.0.100
+dhcp_end: 172.16.0.254
+
+netflow: 0
+netflow_server: 169.254.0.1
+# Authorisation
+
+username: 'admin'
+password: 'adminpassword'
