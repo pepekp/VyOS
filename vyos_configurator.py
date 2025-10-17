@@ -1,9 +1,9 @@
 """
 VyOS router configuration tool will generate VyOS configuration for customer premise equipment.
 WAN - connection to ISP router
-LAN - connection to end customer router, switch or firewall. 
+LAN - connection to end customer router, switch or firewall.
 Option description:
- - Primary and Backup option require dynamic routing protol on the WAN. VRRP is optional and might be replaced with
+ - Primary and Backup options require dynamic routing protol on the WAN side. VRRP is optional and might be replaced with
   link state protocol or dynamic routing protocol on the LAN side.
  such as DHCP server, DHCP Relay, SNMP, Netflow are available if they are required.
  - Standalone option will generate configuration only with LAN side subnet and default route. All service
@@ -58,8 +58,8 @@ def configurator():
             nbr_ip = ipaddress.ip_network(wan_subnet).network_address +1  # Return BGP neighbor IP
             lan_ipaddr = ipaddress.ip_interface(lan_ip).ip # Return LAN IP without /
 
-            jinja_template = f'./Templates/primary_service.j2'
-            with open(jinja_template, 'r') as j:
+
+            with open('cfg_template.j2', 'r') as j:
                 cfg = j.read()
             template = jinja2.Template(cfg)
             cfg = template.render(role=role, hostname=hostname, wan_interface=wan_interface, lan_interface=lan_interface,
