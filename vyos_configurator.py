@@ -1,13 +1,18 @@
 """
-VyOS router configuration tool will generate VyOS configuration for customer premise equipment.
+VyOS router configuration tool will generate VyOS configuration for customer premise equipment and upload and commit
+configuration to the router.
 WAN - connection to ISP router
 LAN - connection to end customer router, switch or firewall.
 Option description:
  - Primary and Backup options require dynamic routing protol on the WAN side. VRRP is optional and might be replaced with
-  link state protocol or dynamic routing protocol on the LAN side.
+  link state protocol or dynamic routing protocol on the LAN side. Static routes and OSPF always require BGP with
+  ISP router to redistribute routes.  
  such as DHCP server, DHCP Relay, SNMP, Netflow are available if they are required.
- - Standalone option will generate configuration only with LAN side subnet and default route. All service
+ - Standalone option will generate configuration only with LAN side subnet and default route. All protocols
  such as DHCP server, DHCP Relay, SNMP, Netflow are available if they are required.
+ 
+Each protocol in inventory file has on/off switch, 0 = off, 1 = on. Jinja2 template logic is based on those switches and
+device role selected at the beginning of the script.   
 """
 
 from getpass import getpass
@@ -76,22 +81,27 @@ def configurator():
             #print(cfg)
             for i in cfg:
                 print(i)
-            vyos_router = {
-                "device_type": "vyos",
-                "host": router_ip,
-                "username": vyos_username,
-                "password": vyos_password,
-                "port": 22,
-            }
 
-            net_connect = ConnectHandler(**vyos_router)
-            # set configuration
-            output = net_connect.send_config_set(cfg, exit_config_mode=False)
-            print(output)
-            # commit configuration
-            output = net_connect.commit()
-            print(output)
-            #print(output)
+            user_validate = input('Do you want to continue with router configuration? yes/no ')
+            if user_validate == 'yes':
+                vyos_router = {
+                    "device_type": "vyos",
+                    "host": router_ip,
+                    "username": vyos_username,
+                    "password": vyos_password,
+                    "port": 22,
+                }
+
+                net_connect = ConnectHandler(**vyos_router)
+                # set configuration
+                output = net_connect.send_config_set(cfg, exit_config_mode=False)
+                print(output)
+                # commit configuration
+                output = net_connect.commit()
+                print(output)
+                #print(output)
+            else:
+                pass
 
 
         else:
