@@ -1,24 +1,23 @@
-{{ role }}
+# {{ role }}
 set system host-name {{ hostname }}
 
 set interfaces ethernet {{ wan_interface }} address {{ wan_ip }}
 set interfaces ethernet {{ wan_interface }} description {{ wan_interface_descr }}
 
-
 set interfaces ethernet {{ lan_interface }} address {{ lan_ip }}
 set interfaces ethernet {{ lan_interface }} description {{ lan_interface_descr }}
 
-{% if role == 'standalone' %}
+{% if role == "standalone" %}
 set protocols static route 0.0.0.0/0 next-hop {{ nbr_ip }}
 {% endif %}
 
-{% if vrrp == '0' %}
+{% if vrrp == 0 %}
 {# Skip vrrp configuration #}
 {% else %}
 set high-availability vrrp group 1 vrid 10
 set high-availability vrrp group 1 interface {{ lan_interface }}
 set high-availability vrrp group 1 address {{ vip }}
-{% if role == primary %}
+{% if role == "primary" %}
 set high-availability vrrp group 1 priority 110
 {% else %}
 set high-availability vrrp group 1 priority 105
@@ -60,7 +59,7 @@ set protocols bgp system-as {{ asn }}
 set protocols bgp address-family ipv4-unicast redistribute static
 set protocols bgp address-family ipv4-unicast redistribute connected
 set protocols bgp neighbor {{ nbr_ip }} remote-as {{ remote_asn }}
-{% if role == primary %}
+{% if role == "primary" %}
 set protocols bgp neighbor {{ nbr_ip }} address-family ipv4-unicast route-map import 'BGP-IMPORT-PRI'
 set protocols bgp neighbor {{ nbr_ip }} address-family ipv4-unicast route-map export 'BGP-EXPORT-PRI'
 {% else %}
@@ -75,7 +74,7 @@ set protocols bgp neighbor {{ nbr_ip }} address-family ipv4-unicast soft-reconfi
 {% else %}
 {% for item in static_route_networks -%}
 {% set item_1 = static_route_networks[loop.index-1] %}
-{% if role == standalone %}
+{% if role == "standalone" %}
 set protocols static route {{item_1}} next-hop {{next_hop}}
 {% else %}
 set protocols failover route {{item_1}} next-hop {{next_hop}} check target '{{next_hop}}'
@@ -147,16 +146,6 @@ set nat source rule 20 source address {{ lan_subnet }}
 set nat source rule 20 translation address {{ wna_ip }}
 {% endif %}
 
-set firewall ipv4 name mgmt rule 100 description ssh
-set firewall ipv4 name mgmt rule 100 protocol tcp
-set firewall ipv4 name mgmt rule 100 action accept
-set firewall ipv4 name mgmt rule 100 destination port 22
-
-set firewall ipv4 name mgmt rule 120 description snmp
-set firewall ipv4 name mgmt rule 120 destination port 161
-set firewall ipv4 name mgmt rule 120 action accept
-set firewall ipv4 name mgmt rule 120 protocol udp
-
 {% if netflow == 0 %}
 ## Skip customer static route configuration ##
 {% else %}
@@ -167,3 +156,13 @@ set system flow-accounting netflow source-ip {{ wan_ip }}
 set system flow-accounting netflow sampling-rate 100
 set system flow-accounting netflow timeout expiry-interval 30
 {% endif %}
+
+set firewall ipv4 name mgmt rule 100 description ssh
+set firewall ipv4 name mgmt rule 100 protocol tcp
+set firewall ipv4 name mgmt rule 100 action accept
+set firewall ipv4 name mgmt rule 100 destination port 22
+
+set firewall ipv4 name mgmt rule 120 description snmp
+set firewall ipv4 name mgmt rule 120 destination port 161
+set firewall ipv4 name mgmt rule 120 action accept
+set firewall ipv4 name mgmt rule 120 protocol udp
